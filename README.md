@@ -4,7 +4,7 @@
 A Visual Studio 2015 / 2017 extension that provides enhanced support for editing High Level Shading Language (HLSL) files.
 Edited by Graham Dianaty to be compatible with the Source Engine (the `.fxc` file type).
 
-The original readme for this project can be found (here)[https://github.com/gdianaty/HLSLTools-for-Source/wiki/Project's-Original-Readme].
-You may obtain the plugin (here, on AppVeyor)[https://ci.appveyor.com/project/gdianaty/hlsltools-for-source/build/artifacts].
+The original readme for this project can be found [here](https://github.com/gdianaty/HLSLTools-for-Source/wiki/Project's-Original-Readme).
+You may obtain the plugin [here, on AppVeyor](https://ci.appveyor.com/project/gdianaty/hlsltools-for-source/build/artifacts).
 
 Special thanks to community members who maintain this thing for me, because I'm lazy. Ya'll are great, keep being awesome.
