@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Text;
 using ShaderTools.CodeAnalysis.Completion;
 using ShaderTools.CodeAnalysis.Hlsl.Compilation;
 using ShaderTools.CodeAnalysis.Hlsl.Completion.Providers;
@@ -16,7 +17,7 @@ using ShaderTools.CodeAnalysis.Text;
 
 namespace ShaderTools.CodeAnalysis.Hlsl.Completion.CompletionProviders
 {
-    internal sealed class SymbolCompletionProvider : CommonCompletionProvider
+    internal sealed class SymbolCompletionProvider : CompletionProvider
     {
         internal override bool IsInsertionTrigger(SourceText text, int insertedCharacterPosition, OptionSet options)
         {
@@ -98,7 +99,7 @@ namespace ShaderTools.CodeAnalysis.Hlsl.Completion.CompletionProviders
             CreateSymbolCompletions(targetType.Members, context);
         }
 
-        private static FieldAccessExpressionSyntax GetPropertyAccessExpression(SyntaxNode root, SourceLocation position)
+        internal static FieldAccessExpressionSyntax GetPropertyAccessExpression(SyntaxNode root, SourceLocation position)
         {
             var token = root.FindTokenOnLeft(position);
             var previous = (SyntaxToken) token.GetPreviousToken(false, true);
@@ -149,7 +150,6 @@ namespace ShaderTools.CodeAnalysis.Hlsl.Completion.CompletionProviders
 
             return CommonCompletionItem.Create(
                 name,
-                CompletionItemRules.Default,
                 Glyph.CompletionWarning,
                 description.ToImmutable());
         }
@@ -189,7 +189,6 @@ namespace ShaderTools.CodeAnalysis.Hlsl.Completion.CompletionProviders
 
             return CommonCompletionItem.Create(
                 displayText,
-                CompletionItemRules.Default,
                 glyph,
                 descriptionTokens);
         }

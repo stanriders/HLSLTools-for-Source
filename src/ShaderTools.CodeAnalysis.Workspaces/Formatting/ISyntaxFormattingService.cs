@@ -1,13 +1,12 @@
 ﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ShaderTools.CodeAnalysis.Host;
+using Microsoft.CodeAnalysis.Host;
+using Microsoft.CodeAnalysis.Text;
 using ShaderTools.CodeAnalysis.Options;
 using ShaderTools.CodeAnalysis.Syntax;
-using ShaderTools.CodeAnalysis.Text;
 
 namespace ShaderTools.CodeAnalysis.Formatting
 {
@@ -25,7 +24,6 @@ namespace ShaderTools.CodeAnalysis.Formatting
     internal interface IFormattingResult
     {
         IList<TextChange> GetTextChanges(CancellationToken cancellationToken = default(CancellationToken));
-        //SyntaxNode GetFormattedRoot(CancellationToken cancellationToken = default(CancellationToken));
     }
 
     internal sealed class FormattingResult : IFormattingResult

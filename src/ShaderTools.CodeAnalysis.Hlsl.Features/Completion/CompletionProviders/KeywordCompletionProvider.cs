@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Text;
 using ShaderTools.CodeAnalysis.Completion;
 using ShaderTools.CodeAnalysis.Hlsl.Completion.Providers;
 using ShaderTools.CodeAnalysis.Hlsl.Extensions.ContextQuery;
@@ -12,7 +13,7 @@ using ShaderTools.CodeAnalysis.Text;
 
 namespace ShaderTools.CodeAnalysis.Hlsl.Completion.CompletionProviders
 {
-    internal sealed class KeywordCompletionProvider : CommonCompletionProvider
+    internal sealed class KeywordCompletionProvider : CompletionProvider
     {
         internal override bool IsInsertionTrigger(SourceText text, int insertedCharacterPosition, OptionSet options)
         {
@@ -33,7 +34,6 @@ namespace ShaderTools.CodeAnalysis.Hlsl.Completion.CompletionProviders
 
                 context.AddItem(CommonCompletionItem.Create(
                     keywordText,
-                    CompletionItemRules.Default,
                     Glyph.Keyword,
                     (keywordText + " Keyword").ToSymbolMarkupTokens()));
             }
@@ -61,13 +61,15 @@ namespace ShaderTools.CodeAnalysis.Hlsl.Completion.CompletionProviders
 
             var targetToken = leftToken.GetPreviousTokenIfTouchingWord(position);
             if (targetToken == null)
-                yield break;
+                targetToken = new SyntaxToken(SyntaxKind.None, true, new SourceRange(), new SourceFileSpan());
 
             var isPreprocessorKeywordContext = isPreprocessorDirectiveContext && syntaxTree.IsPreprocessorKeywordContext(position, leftToken);
 
             var isStatementContext = !isPreprocessorDirectiveContext && targetToken.IsBeginningOfStatementContext();
 
             var isSemanticContext = !isPreprocessorDirectiveContext && leftToken.HasAncestor<SemanticSyntax>();
+
+            var isBooleanLiteralExpressionContext = leftToken.HasAncestor<ExpressionSyntax>() && SymbolCompletionProvider.GetPropertyAccessExpression((SyntaxNode)syntaxTree.Root, position) == null;
 
             var isTypeDeclarationContext = syntaxTree.IsTypeDeclarationContext(targetToken);
 
@@ -77,14 +79,26 @@ namespace ShaderTools.CodeAnalysis.Hlsl.Completion.CompletionProviders
             if (targetToken.IsSwitchLabelContext())
                 yield return SyntaxKind.CaseKeyword;
 
+            if (isStatementContext)
+                yield return SyntaxKind.ConstKeyword;
+
             if (IsValidContinueKeywordContext(isStatementContext, leftToken))
                 yield return SyntaxKind.ContinueKeyword;
+
+            if (isStatementContext)
+                yield return SyntaxKind.DoKeyword;
 
             if (isPreprocessorDirectiveContext || IsValidElseKeywordContext(targetToken))
                 yield return SyntaxKind.ElseKeyword;
 
             if (isPreprocessorKeywordContext || isStatementContext)
                 yield return SyntaxKind.IfKeyword;
+
+            if (isStatementContext || isBooleanLiteralExpressionContext)
+                yield return SyntaxKind.FalseKeyword;
+
+            if (isStatementContext)
+                yield return SyntaxKind.ForKeyword;
 
             if (isSemanticContext)
                 yield return SyntaxKind.PackoffsetKeyword;
@@ -100,6 +114,9 @@ namespace ShaderTools.CodeAnalysis.Hlsl.Completion.CompletionProviders
 
             if (isStatementContext)
                 yield return SyntaxKind.SwitchKeyword;
+
+            if (isStatementContext || isBooleanLiteralExpressionContext)
+                yield return SyntaxKind.TrueKeyword;
 
             if (isStatementContext || IsValidWhileKeywordContext(targetToken))
                 yield return SyntaxKind.WhileKeyword;

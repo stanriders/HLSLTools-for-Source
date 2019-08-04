@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
-using ShaderTools.CodeAnalysis.Classification;
+using Microsoft.CodeAnalysis.Classification;
 using ShaderTools.CodeAnalysis.Hlsl.Compilation;
 using ShaderTools.CodeAnalysis.Hlsl.Symbols;
 using ShaderTools.CodeAnalysis.Hlsl.Syntax;
@@ -179,6 +179,31 @@ namespace ShaderTools.CodeAnalysis.Hlsl.Classification
                 CreateTag(node.Name.GetUnqualifiedName().Name, HlslClassificationTypeNames.FunctionIdentifier);
 
             base.VisitFunctionInvocationExpression(node);
+        }
+
+        public override void VisitSyntaxToken(SyntaxToken node)
+        {
+            void CreateMacroTag(SyntaxNode trivia)
+            {
+                if (trivia is DefineDirectiveTriviaSyntax dd)
+                    CreateTag(dd.MacroName, HlslClassificationTypeNames.MacroIdentifier);
+            }
+
+            foreach (var trivia in node.LeadingTrivia)
+                CreateMacroTag(trivia);
+
+            foreach (var trivia in node.TrailingTrivia)
+                CreateMacroTag(trivia);
+
+            if (node.MacroReference != null)
+                CreateTag(node.MacroReference.NameToken, HlslClassificationTypeNames.MacroIdentifier);
+
+            base.VisitSyntaxToken(node);
+        }
+
+        public override void VisitSyntaxTrivia(SyntaxTrivia node)
+        {
+            base.VisitSyntaxTrivia(node);
         }
 
         private static string GetClassificationType(Symbol symbol)

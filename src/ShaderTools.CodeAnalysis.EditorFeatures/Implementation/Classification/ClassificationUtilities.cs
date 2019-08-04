@@ -3,9 +3,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.Classification;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
-using ShaderTools.CodeAnalysis.Classification;
 using ShaderTools.CodeAnalysis.Editor.Shared.Utilities;
 using ShaderTools.CodeAnalysis.Text.Shared.Extensions;
 
@@ -41,14 +41,6 @@ namespace ShaderTools.CodeAnalysis.Editor.Implementation.Classification
                     classifiedSpan.TextSpan.ToSnapshotSpan(snapshot),
                     new ClassificationTag(typeMap.GetClassificationType(classifiedSpan.ClassificationType))));
             }
-        }
-
-        public static List<ITagSpan<IClassificationTag>> ConvertAndReturnList(ClassificationTypeMap typeMap, ITextSnapshot snapshot, List<ClassifiedSpan> classifiedSpans)
-        {
-            var result = new List<ITagSpan<IClassificationTag>>();
-            Convert(typeMap, snapshot, classifiedSpans, result.Add);
-            ReturnClassifiedSpanList(classifiedSpans);
-            return result;
         }
     }
 }

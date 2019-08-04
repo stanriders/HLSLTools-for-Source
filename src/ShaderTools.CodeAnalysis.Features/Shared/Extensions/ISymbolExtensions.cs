@@ -7,6 +7,7 @@ using System.Threading;
 using ShaderTools.CodeAnalysis.Compilation;
 using ShaderTools.CodeAnalysis.Symbols;
 using ShaderTools.Utilities.Collections;
+using TaggedText = Microsoft.CodeAnalysis.TaggedText;
 
 namespace ShaderTools.CodeAnalysis.Shared.Extensions
 {
@@ -17,41 +18,41 @@ namespace ShaderTools.CodeAnalysis.Shared.Extensions
             switch (symbol.Kind)
             {
                 case SymbolKind.Array:
-                    return Glyph.ClassPublic;
+                    return Glyph.Class;
                 case SymbolKind.Namespace:
                     return Glyph.Namespace;
                 case SymbolKind.Struct:
-                    return Glyph.StructurePublic;
+                    return Glyph.Structure;
                 case SymbolKind.Class:
-                    return Glyph.ClassPublic;
+                    return Glyph.Class;
                 case SymbolKind.Interface:
-                    return Glyph.InterfacePublic;
+                    return Glyph.Interface;
                 case SymbolKind.Field:
-                    return Glyph.FieldPublic;
+                    return Glyph.Field;
                 case SymbolKind.Function:
-                    return Glyph.MethodPublic;
+                    return Glyph.Method;
                 case SymbolKind.Variable:
                     return Glyph.Local; // Not quite right.
                 case SymbolKind.Parameter:
                     return Glyph.Parameter;
                 case SymbolKind.Indexer:
-                    return Glyph.MethodPublic;
+                    return Glyph.Method;
                 case SymbolKind.IntrinsicObjectType:
-                    return Glyph.Intrinsic;
+                    return Glyph.IntrinsicClass;
                 case SymbolKind.IntrinsicVectorType:
-                    return Glyph.Intrinsic;
+                    return Glyph.IntrinsicStruct;
                 case SymbolKind.IntrinsicMatrixType:
-                    return Glyph.Intrinsic;
+                    return Glyph.IntrinsicStruct;
                 case SymbolKind.IntrinsicScalarType:
-                    return Glyph.Intrinsic;
+                    return Glyph.IntrinsicStruct;
                 case SymbolKind.Semantic:
-                    return Glyph.ConstantPublic;
+                    return Glyph.Constant;
                 case SymbolKind.Technique:
-                    return Glyph.ModulePublic;
+                    return Glyph.Module;
                 case SymbolKind.Attribute:
-                    return Glyph.MethodPublic;
+                    return Glyph.Method;
                 case SymbolKind.ConstantBuffer:
-                    return Glyph.StructurePublic;
+                    return Glyph.Structure;
                 case SymbolKind.TypeAlias:
                     return Glyph.Typedef;
                 default:

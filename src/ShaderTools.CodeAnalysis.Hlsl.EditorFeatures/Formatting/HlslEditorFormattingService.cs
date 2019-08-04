@@ -3,12 +3,12 @@ using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Host.Mef;
+using Microsoft.CodeAnalysis.Text;
 using ShaderTools.CodeAnalysis.Formatting;
 using ShaderTools.CodeAnalysis.Hlsl.Options;
 using ShaderTools.CodeAnalysis.Hlsl.Syntax;
-using ShaderTools.CodeAnalysis.Host.Mef;
 using ShaderTools.CodeAnalysis.Options;
-using ShaderTools.CodeAnalysis.Text;
 using ShaderTools.Utilities.Collections;
 
 namespace ShaderTools.CodeAnalysis.Editor.Hlsl.Formatting
@@ -101,7 +101,19 @@ namespace ShaderTools.CodeAnalysis.Editor.Hlsl.Formatting
                 return true;
             }
 
+            // If format-on-typing is not on, then we don't support formatting on any other characters.
+            var autoFormattingOnTyping = options.GetOption(FeatureOnOffOptions.AutoFormattingOnTyping, LanguageNames.Hlsl);
+            if (!autoFormattingOnTyping)
+            {
+                return false;
+            }
+
             if (ch == '}' && !options.GetOption(FeatureOnOffOptions.AutoFormattingOnCloseBrace, LanguageNames.Hlsl))
+            {
+                return false;
+            }
+
+            if (ch == ')' && !options.GetOption(FeatureOnOffOptions.AutoFormattingOnCloseParen, LanguageNames.Hlsl))
             {
                 return false;
             }

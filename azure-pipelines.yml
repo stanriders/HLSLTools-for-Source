@@ -1,0 +1,63 @@
+trigger:
+- master
+
+pr:
+- master
+
+variables:
+  solution: 'src/ShaderTools.sln'
+  buildConfiguration: 'Release'
+
+jobs:
+
+- job: Build_Test_VS_Extension
+  
+  strategy:
+    matrix:
+      VS2017:
+        imageName: 'vs2017-win2016'
+        vsVersion: VS2017
+      VS2019:
+        imageName: 'windows-2019'
+        vsVersion: VS2019
+  
+  pool:
+    vmImage: $(imageName)
+  
+  steps:
+  
+  - task: NuGetToolInstaller@0
+    displayName: 'Install NuGet'
+    inputs:
+      versionSpec: '5.1.0'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Restore NuGet Packages (dotnet)'
+    inputs:
+      command: restore
+      projects: '$(solution)'
+
+  - task: NuGetCommand@2
+    displayName: 'Restore NuGet Packages (nuget)'
+    inputs:
+      restoreSolution: '$(solution)'
+  
+  - task: VSBuild@1
+    displayName: 'Build'
+    inputs:
+      solution: '$(solution)'
+      configuration: $(buildConfiguration)
+
+  - task: DotNetCoreCLI@2
+    displayName: Test
+    inputs:
+      command: test
+      projects: '**/*Tests/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+      
+  - task: PublishPipelineArtifact@1
+    displayName: Publish Artifact
+    condition: and(succeeded(), eq(variables['vsVersion'], 'VS2019'))
+    inputs:
+      artifactName: VSIX
+      path: 'src/ShaderTools.Editor.VisualStudio/bin/$(buildConfiguration)/ShaderTools.Editor.VisualStudio.vsix'

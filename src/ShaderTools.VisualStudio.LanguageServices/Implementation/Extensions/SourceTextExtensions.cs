@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using Microsoft.CodeAnalysis.Text;
 using ShaderTools.CodeAnalysis.Shared.Extensions;
-using ShaderTools.CodeAnalysis.Text;
 using VsTextSpan = Microsoft.VisualStudio.TextManager.Interop.TextSpan;
 
 namespace ShaderTools.VisualStudio.LanguageServices.Implementation.Extensions
@@ -19,26 +19,6 @@ namespace ShaderTools.VisualStudio.LanguageServices.Implementation.Extensions
                 iEndLine = endLine,
                 iEndIndex = endOffset
             };
-        }
-
-        public static VsTextSpan GetVsTextSpanForLineOffset(this SourceText text, int lineNumber, int offset)
-        {
-            return new VsTextSpan
-            {
-                iStartLine = lineNumber,
-                iStartIndex = offset,
-                iEndLine = lineNumber,
-                iEndIndex = offset
-            };
-        }
-
-        public static VsTextSpan GetVsTextSpanForPosition(this SourceText text, int position, int virtualSpace)
-        {
-            text.GetLineAndOffset(position, out var lineNumber, out var offset);
-
-            offset += virtualSpace;
-
-            return text.GetVsTextSpanForLineOffset(lineNumber, offset);
         }
     }
 }

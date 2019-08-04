@@ -3,12 +3,15 @@
 using System.Collections.Immutable;
 using System.Composition;
 using System.Threading;
+using Microsoft.CodeAnalysis.Text;
 using ShaderTools.CodeAnalysis.Completion;
 using ShaderTools.CodeAnalysis.Hlsl.Completion.CompletionProviders;
 using ShaderTools.CodeAnalysis.Hlsl.Completion.Providers;
 using ShaderTools.CodeAnalysis.Host;
 using ShaderTools.CodeAnalysis.Host.Mef;
-using ShaderTools.CodeAnalysis.Text;
+using ILanguageService = Microsoft.CodeAnalysis.Host.ILanguageService;
+using CompletionRules = Microsoft.CodeAnalysis.Completion.CompletionRules;
+using EnterKeyRule = Microsoft.CodeAnalysis.Completion.EnterKeyRule;
 
 namespace ShaderTools.CodeAnalysis.Hlsl.Completion
 {
@@ -21,13 +24,13 @@ namespace ShaderTools.CodeAnalysis.Hlsl.Completion
         }
     }
 
-    internal class HlslCompletionService : CommonCompletionService
+    internal class HlslCompletionService : CompletionService
     {
         private readonly ImmutableArray<CompletionProvider> _defaultCompletionProviders =
             ImmutableArray.Create<CompletionProvider>(
                 new SemanticCompletionProvider(),
-                new SymbolCompletionProvider()
-                //new KeywordCompletionProvider()
+                new SymbolCompletionProvider(),
+                new KeywordCompletionProvider()
             );
 
         private readonly Workspace _workspace;
