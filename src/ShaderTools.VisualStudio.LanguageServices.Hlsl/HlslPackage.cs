@@ -40,7 +40,9 @@ namespace ShaderTools.VisualStudio.LanguageServices.Hlsl
 	
 	// Source engine is best engine.
 	[ProvideLanguageExtension(typeof(HlslLanguageService), ".fxc")]
-
+	// experimental thing to see if I can get it to recognize files like common_ps_fxc.h, common_fxc.h and so on and so forth.
+	[ProvideLanguageExtension(typeof(HlslLanguageService), "_fxc.h")]
+	
     // Adds support for user mapping of custom file extensions.
     [ProvideFileExtensionMapping(
         "{A95B1F48-2A2E-492C-BABE-8DCC8A4643A8}", 
