@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.CodeAnalysis.Text;
 using ShaderTools.CodeAnalysis.Diagnostics;
 using ShaderTools.CodeAnalysis.Syntax;
 using ShaderTools.CodeAnalysis.Text;
@@ -322,6 +323,9 @@ namespace ShaderTools.CodeAnalysis.Hlsl.Syntax
             if (parent.Kind == SyntaxKind.ExpressionStatement && ((ExpressionStatementSyntax) parent).Expression.Kind == SyntaxKind.IdentifierName)
                 return true;
 
+            if (parent is ParameterSyntax p && token.Ancestors().Contains(p.Type))
+                return true;
+
             // User might be typing a cast expression.
             if (parent.Kind == SyntaxKind.ParenthesizedExpression && ((ParenthesizedExpressionSyntax) parent).Expression.Kind == SyntaxKind.IdentifierName)
                 return true;
@@ -339,6 +343,9 @@ namespace ShaderTools.CodeAnalysis.Hlsl.Syntax
 
             if (parent is TypeSyntax)
                 return true;
+
+            if (parent.ContainsDiagnostics)
+                return false;
 
             return PossiblyInFunctionReturnTypeName(parent, position)
                 || PossiblyInParameterTypeName(parent, position)

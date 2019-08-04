@@ -61,6 +61,9 @@
         AmbiguousNamespaceOrType,
         UndeclaredFunctionInNamespaceOrClass,
         FunctionOverloadResolutionFailure,
-        MethodOverloadResolutionFailure
+        MethodOverloadResolutionFailure,
+        RetNoObjectRequired,
+        RetObjectRequired,
+        ReturnExpected,
     }
 }

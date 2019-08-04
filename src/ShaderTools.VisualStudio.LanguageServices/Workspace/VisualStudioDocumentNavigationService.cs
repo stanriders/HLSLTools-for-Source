@@ -4,6 +4,7 @@ using System;
 using System.Composition;
 using System.Diagnostics;
 using System.Threading;
+using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Shell;
@@ -12,14 +13,13 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.TextManager.Interop;
 using ShaderTools.CodeAnalysis;
 using ShaderTools.CodeAnalysis.Editor.Shared.Utilities;
-using ShaderTools.CodeAnalysis.Host.Mef;
 using ShaderTools.CodeAnalysis.Navigation;
 using ShaderTools.CodeAnalysis.Options;
 using ShaderTools.CodeAnalysis.Text;
 using ShaderTools.Utilities.ErrorReporting;
 using ShaderTools.VisualStudio.LanguageServices.Implementation.Extensions;
 using ShaderTools.VisualStudio.LanguageServices.Properties;
-using TextSpan = ShaderTools.CodeAnalysis.Text.TextSpan;
+using TextSpan = Microsoft.CodeAnalysis.Text.TextSpan;
 using VsTextSpan = Microsoft.VisualStudio.TextManager.Interop.TextSpan;
 
 namespace ShaderTools.VisualStudio.LanguageServices.Implementation
@@ -100,7 +100,7 @@ namespace ShaderTools.VisualStudio.LanguageServices.Implementation
                 try
                 {
                     VsShellUtilities.OpenDocument(
-                        _serviceProvider, text.FilePath, VSConstants.LOGVIEWID_Code,
+                        _serviceProvider, sourceFileSpan.File.FilePath, VSConstants.LOGVIEWID_Code,
                         out hierarchy, out itemID, out docFrame, out textView);
                 }
                 catch

@@ -2,6 +2,9 @@
 
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Completion;
+using Microsoft.CodeAnalysis.Tags;
 using ShaderTools.CodeAnalysis.Symbols.Markup;
 using ShaderTools.Utilities;
 using ShaderTools.Utilities.Collections;
@@ -12,7 +15,6 @@ namespace ShaderTools.CodeAnalysis.Completion
     {
         public static CompletionItem Create(
             string displayText,
-            CompletionItemRules rules,
             Glyph? glyph = null,
             ImmutableArray<SymbolMarkupToken> description = default(ImmutableArray<SymbolMarkupToken>),
             string sortText = null,
@@ -31,7 +33,7 @@ namespace ShaderTools.CodeAnalysis.Completion
 
             if (showsWarningIcon)
             {
-                tags = tags.Add(CompletionTags.Warning);
+                tags = tags.Add(WellKnownTags.Warning);
             }
 
             properties = properties ?? ImmutableDictionary<string, string>.Empty;
@@ -46,13 +48,7 @@ namespace ShaderTools.CodeAnalysis.Completion
                 sortText: sortText,
                 properties: properties,
                 glyph: glyph ?? Glyph.None,
-                tags: tags,
-                rules: rules);
-        }
-
-        public static bool HasDescription(CompletionItem item)
-        {
-            return item.Properties.ContainsKey("Description");
+                tags: tags);
         }
 
         public static CompletionDescription GetDescription(CompletionItem item)

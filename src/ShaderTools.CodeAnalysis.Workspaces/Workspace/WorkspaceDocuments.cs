@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.CodeAnalysis.Text;
 using ShaderTools.CodeAnalysis.Properties;
 using ShaderTools.CodeAnalysis.Syntax;
-using ShaderTools.CodeAnalysis.Text;
 using ShaderTools.Utilities.Diagnostics;
 
 namespace ShaderTools.CodeAnalysis
@@ -50,6 +50,22 @@ namespace ShaderTools.CodeAnalysis
             return _idToDocumentMap.Values
                 .Where(x => string.Equals(x.FilePath, filePath, StringComparison.OrdinalIgnoreCase))
                 .ToImmutableArray();
+        }
+
+        public Document GetDocumentWithFilePath(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath))
+            {
+                return null;
+            }
+
+            var documentId = _idToDocumentMap.Values
+                .FirstOrDefault(x => string.Equals(x.FilePath, filePath, StringComparison.OrdinalIgnoreCase))
+                ?.Id;
+
+            return (documentId != null)
+                ? GetDocument(documentId)
+                : null;
         }
 
         /// <summary>

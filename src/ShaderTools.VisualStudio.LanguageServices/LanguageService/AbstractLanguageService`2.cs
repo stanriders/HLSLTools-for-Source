@@ -5,10 +5,10 @@ using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.Text.Editor.Commanding;
 using Microsoft.VisualStudio.Text.Outlining;
 using Microsoft.VisualStudio.TextManager.Interop;
 using ShaderTools.CodeAnalysis;
-using ShaderTools.CodeAnalysis.Editor;
 using ShaderTools.CodeAnalysis.Editor.Shared.Extensions;
 using ShaderTools.CodeAnalysis.Formatting;
 using ShaderTools.CodeAnalysis.Options;
@@ -151,9 +151,6 @@ namespace ShaderTools.VisualStudio.LanguageServices.LanguageService
 
         private void PrimeLanguageServiceComponentsOnBackground(IComponentModel componentModel)
         {
-            var commandHandlerServiceFactory = componentModel.GetService<ICommandHandlerServiceFactory>();
-            commandHandlerServiceFactory.Initialize(this.ContentTypeName);
-
             var formatter = this.Workspace.Services.GetLanguageServices(ShaderToolsLanguageName).GetService<ISyntaxFormattingService>();
             if (formatter != null)
             {
@@ -175,13 +172,12 @@ namespace ShaderTools.VisualStudio.LanguageServices.LanguageService
 
             Contract.Assert(!wpfTextView.Properties.ContainsProperty(typeof(AbstractOleCommandTarget)));
 
-            var commandHandlerFactory = Package.ComponentModel.GetService<ICommandHandlerServiceFactory>();
+            var commandHandlerFactory = Package.ComponentModel.GetService<IEditorCommandHandlerServiceFactory>();
             var workspace = Package.ComponentModel.GetService<VisualStudioWorkspace>();
 
             // The lifetime of CommandFilter is married to the view
             wpfTextView.GetOrCreateAutoClosingProperty(v =>
-                new StandaloneCommandFilter(
-                    SystemServiceProvider, v, commandHandlerFactory, EditorAdaptersFactoryService).AttachToVsTextView());
+                new StandaloneCommandFilter(v, commandHandlerFactory, EditorAdaptersFactoryService).AttachToVsTextView());
 
             ConditionallyCollapseOutliningRegions(wpfTextView, workspace);
         }

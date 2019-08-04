@@ -5,12 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ShaderTools.CodeAnalysis.Shared.Extensions;
 using ShaderTools.CodeAnalysis.Symbols;
 using ShaderTools.CodeAnalysis.Symbols.Markup;
-using ShaderTools.CodeAnalysis.Syntax;
 using ShaderTools.CodeAnalysis.Text;
 using ShaderTools.Utilities.Collections;
+using TaggedText = Microsoft.CodeAnalysis.TaggedText;
 
 namespace ShaderTools.CodeAnalysis.SignatureHelp
 {
@@ -26,7 +25,7 @@ namespace ShaderTools.CodeAnalysis.SignatureHelp
         protected abstract Task<SignatureHelpItems> GetItemsWorkerAsync(Document document, int position, SignatureHelpTriggerInfo triggerInfo, CancellationToken cancellationToken);
 
         protected static SignatureHelpItems CreateSignatureHelpItems(
-            IList<SignatureHelpItem> items, SourceFileSpan applicableSpan, SignatureHelpState state)
+            IList<SignatureHelpItem> items, SourceFileSpan applicableSpan, SignatureHelpState state, int? selectedItem)
         {
             if (items == null || !items.Any() || state == null)
             {
@@ -39,7 +38,7 @@ namespace ShaderTools.CodeAnalysis.SignatureHelp
             }
 
             items = Filter(items, state.ArgumentNames);
-            return new SignatureHelpItems(items, applicableSpan.Span, state.ArgumentIndex, state.ArgumentCount, state.ArgumentName);
+            return new SignatureHelpItems(items, applicableSpan.Span, state.ArgumentIndex, state.ArgumentCount, state.ArgumentName, selectedItem);
         }
 
         private static IList<SignatureHelpItem> Filter(IList<SignatureHelpItem> items, IEnumerable<string> parameterNames)

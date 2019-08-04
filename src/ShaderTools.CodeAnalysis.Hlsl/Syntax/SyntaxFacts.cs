@@ -1477,6 +1477,7 @@ namespace ShaderTools.CodeAnalysis.Hlsl.Syntax
                 case SyntaxKind.TypedefKeyword:
                 case SyntaxKind.UniformKeyword:
                 case SyntaxKind.UNormKeyword:
+                case SyntaxKind.UnsignedKeyword:
                 case SyntaxKind.UintKeyword:
                 case SyntaxKind.Uint1Keyword:
                 case SyntaxKind.Uint2Keyword:
@@ -2598,7 +2599,7 @@ namespace ShaderTools.CodeAnalysis.Hlsl.Syntax
         public static bool IsIdentifierStartCharacter(char ch)
         {
             return (ch >= 'a' && ch <= 'z')
-                   || (ch >= 'Z' && ch <= 'Z')
+                   || (ch >= 'A' && ch <= 'Z')
                    || ch == '_';
         }
 

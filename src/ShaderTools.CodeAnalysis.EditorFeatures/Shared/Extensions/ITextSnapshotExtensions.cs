@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Threading;
+using Microsoft.CodeAnalysis.Text;
 using Microsoft.VisualStudio.Text;
 using ShaderTools.CodeAnalysis.Formatting;
 using ShaderTools.CodeAnalysis.Text;
@@ -32,14 +32,5 @@ namespace ShaderTools.CodeAnalysis.Editor.Shared.Extensions
                 document.Workspace.ApplyTextChanges(document.Id, changes, cancellationToken);
             }
         }
-
-        //private static IEnumerable<IFormattingRule> GetFormattingRules(Document document, IEnumerable<IFormattingRule> rules, TextSpan span)
-        //{
-        //    var workspace = document.Project.Solution.Workspace;
-        //    var formattingRuleFactory = workspace.Services.GetService<IHostDependentFormattingRuleFactoryService>();
-        //    var position = (span.Start + span.End) / 2;
-
-        //    return SpecializedCollections.SingletonEnumerable(formattingRuleFactory.CreateRule(document, position)).Concat(rules ?? Formatter.GetDefaultFormattingRules(document));
-        //}
     }
 }

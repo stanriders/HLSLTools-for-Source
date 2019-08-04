@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Microsoft.CodeAnalysis.Options;
+using Microsoft.CodeAnalysis.Text;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
@@ -19,6 +21,7 @@ using ShaderTools.CodeAnalysis.Shared.Extensions;
 using ShaderTools.CodeAnalysis.Text;
 using ShaderTools.Utilities.Threading;
 using ShaderTools.VisualStudio.LanguageServices.Utilities;
+using OptionSet = ShaderTools.CodeAnalysis.Options.OptionSet;
 
 namespace ShaderTools.VisualStudio.LanguageServices.Options.UI
 {
@@ -135,7 +138,7 @@ namespace ShaderTools.VisualStudio.LanguageServices.Options.UI
                 LineSpan.FromBounds(startLine, endLine));
 
             var textView = _textEditorFactoryService.CreateTextView(projection,
-              _textEditorFactoryService.CreateTextViewRoleSet(PredefinedTextViewRoles.Interactive));
+              _textEditorFactoryService.CreateTextViewRoleSet());
 
             this.TextViewHost = _textEditorFactoryService.CreateTextViewHost(textView, setFocus: false);
 

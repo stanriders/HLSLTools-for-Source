@@ -2,45 +2,46 @@
 
 using System;
 using System.ComponentModel.Composition;
-using System.Linq;
 using System.Threading;
-using Microsoft.VisualStudio.Language.Intellisense.Utilities;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.VisualStudio.Commanding;
+using Microsoft.VisualStudio.Language.Intellisense.AsyncCompletion;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.Text.Editor.Commanding;
+using Microsoft.VisualStudio.Text.Editor.Commanding.Commands;
 using Microsoft.VisualStudio.Text.Operations;
 using Microsoft.VisualStudio.Utilities;
-using ShaderTools.CodeAnalysis.Editor.Commands;
 using ShaderTools.CodeAnalysis.Editor.Properties;
 using ShaderTools.CodeAnalysis.Editor.Shared.Extensions;
 using ShaderTools.CodeAnalysis.Editor.Shared.Utilities;
-using ShaderTools.CodeAnalysis.Formatting.Rules;
 using ShaderTools.CodeAnalysis.Shared.Extensions;
 using ShaderTools.CodeAnalysis.Text;
 using ShaderTools.Utilities.Threading;
 
 namespace ShaderTools.CodeAnalysis.Editor.Implementation.Formatting
 {
-    [ExportCommandHandler(PredefinedCommandHandlerNames.FormatDocument, ContentTypeNames.ShaderToolsContentType)]
-    [Order(After = PredefinedCommandHandlerNames.Rename)]
-    [Order(Before = PredefinedCommandHandlerNames.Completion)]
+    [Export(typeof(ICommandHandler))]
+    [ContentType(ContentTypeNames.ShaderToolsContentType)]
+    [Order(Before = PredefinedCompletionNames.CompletionCommandHandler)]
+    [Name(nameof(FormatCommandHandler))]
     internal partial class FormatCommandHandler :
         ICommandHandler<FormatDocumentCommandArgs>,
         ICommandHandler<FormatSelectionCommandArgs>,
-        ICommandHandler<PasteCommandArgs>,
-        ICommandHandler<TypeCharCommandArgs>,
-        ICommandHandler<ReturnKeyCommandArgs>
+        IChainedCommandHandler<PasteCommandArgs>,
+        IChainedCommandHandler<TypeCharCommandArgs>,
+        IChainedCommandHandler<ReturnKeyCommandArgs>
     {
-        private readonly IWaitIndicator _waitIndicator;
         private readonly ITextUndoHistoryRegistry _undoHistoryRegistry;
         private readonly IEditorOperationsFactoryService _editorOperationsFactoryService;
 
+        public string DisplayName => "Format";
+
         [ImportingConstructor]
         public FormatCommandHandler(
-            IWaitIndicator waitIndicator,
             ITextUndoHistoryRegistry undoHistoryRegistry,
             IEditorOperationsFactoryService editorOperationsFactoryService)
         {
-            _waitIndicator = waitIndicator;
             _undoHistoryRegistry = undoHistoryRegistry;
             _editorOperationsFactoryService = editorOperationsFactoryService;
         }
@@ -58,17 +59,6 @@ namespace ShaderTools.CodeAnalysis.Editor.Implementation.Formatting
                     return;
                 }
 
-                if (selectionOpt.HasValue)
-                {
-                    var ruleFactory = document.Workspace.Services.GetService<IHostDependentFormattingRuleFactoryService>();
-
-                    changes = ruleFactory.FilterFormattedChanges(document, selectionOpt.Value, changes).ToList();
-                    if (changes.Count == 0)
-                    {
-                        return;
-                    }
-                }
-
                 //using (Logger.LogBlock(FunctionId.Formatting_ApplyResultToBuffer, cancellationToken))
                 {
                     document.Workspace.ApplyTextChanges(document.Id, changes, cancellationToken);
@@ -78,7 +68,7 @@ namespace ShaderTools.CodeAnalysis.Editor.Implementation.Formatting
             }
         }
 
-        private static CommandState GetCommandState(ITextBuffer buffer, Func<CommandState> nextHandler)
+        private static CommandState GetCommandState(ITextBuffer buffer)
         {
             //if (!buffer.CanApplyChangeDocumentToWorkspace())
             //{
@@ -88,7 +78,7 @@ namespace ShaderTools.CodeAnalysis.Editor.Implementation.Formatting
             return CommandState.Available;
         }
 
-        public void ExecuteReturnOrTypeCommand(CommandArgs args, Action nextHandler, CancellationToken cancellationToken)
+        private void ExecuteReturnOrTypeCommand(EditorCommandArgs args, Action nextHandler, CancellationToken cancellationToken)
         {
             // This method handles only return / type char
             if (!(args is ReturnKeyCommandArgs || args is TypeCharCommandArgs))

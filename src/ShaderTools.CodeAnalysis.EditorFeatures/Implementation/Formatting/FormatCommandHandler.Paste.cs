@@ -2,11 +2,11 @@
 
 using System;
 using System.Threading;
+using Microsoft.VisualStudio.Commanding;
 using Microsoft.VisualStudio.Text;
-using ShaderTools.CodeAnalysis.Editor.Commands;
+using Microsoft.VisualStudio.Text.Editor.Commanding.Commands;
 using ShaderTools.CodeAnalysis.Editor.Properties;
 using ShaderTools.CodeAnalysis.Editor.Shared.Extensions;
-using ShaderTools.CodeAnalysis.Formatting.Rules;
 using ShaderTools.CodeAnalysis.Options;
 using ShaderTools.CodeAnalysis.Shared.Extensions;
 using ShaderTools.CodeAnalysis.Text;
@@ -21,13 +21,12 @@ namespace ShaderTools.CodeAnalysis.Editor.Implementation.Formatting
             return nextHandler();
         }
 
-        public void ExecuteCommand(PasteCommandArgs args, Action nextHandler)
+        public void ExecuteCommand(PasteCommandArgs args, Action nextHandler, CommandExecutionContext context)
         {
-            _waitIndicator.Wait(
-                title: EditorFeaturesResources.Format_Paste,
-                message: EditorFeaturesResources.Formatting_pasted_text,
-                allowCancel: true,
-                action: c => ExecuteCommandWorker(args, nextHandler, c.CancellationToken));
+            using (context.OperationContext.AddScope(allowCancellation: true, EditorFeaturesResources.Formatting_pasted_text))
+            {
+                ExecuteCommandWorker(args, nextHandler, context.OperationContext.UserCancellationToken);
+            }
         }
 
         private void ExecuteCommandWorker(PasteCommandArgs args, Action nextHandler, CancellationToken cancellationToken)
@@ -51,12 +50,6 @@ namespace ShaderTools.CodeAnalysis.Editor.Implementation.Formatting
 
             var document = args.SubjectBuffer.CurrentSnapshot.GetOpenDocumentInCurrentContextWithChanges();
             if (document == null)
-            {
-                return;
-            }
-
-            var formattingRuleService = document.Workspace.Services.GetService<IHostDependentFormattingRuleFactoryService>();
-            if (formattingRuleService != null && formattingRuleService.ShouldNotFormatOrCommitOnPaste(document))
             {
                 return;
             }

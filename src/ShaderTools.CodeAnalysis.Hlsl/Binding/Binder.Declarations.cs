@@ -204,7 +204,7 @@ namespace ShaderTools.CodeAnalysis.Hlsl.Binding
             if (declaration.Semantic != null)
                 Bind(declaration.Semantic, BindVariableQualifier);
 
-            var functionBinder = new Binder(_sharedBinderState, this);
+            var functionBinder = new FunctionBinder(_sharedBinderState, this, functionSymbol);
 
             var boundParameters = BindParameters(declaration.ParameterList, functionBinder, functionSymbol);
 
@@ -268,16 +268,42 @@ namespace ShaderTools.CodeAnalysis.Hlsl.Binding
                 Bind(declaration.Semantic, BindVariableQualifier);
 
             var functionBinder = (functionOwner != null && (functionOwner.Kind == SymbolKind.Class || functionOwner.Kind == SymbolKind.Struct))
-                ? new StructMethodBinder(_sharedBinderState, this, (StructSymbol) functionOwner)
-                : new Binder(_sharedBinderState, this);
+                ? new StructMethodBinder(_sharedBinderState, this, (StructSymbol) functionOwner, functionSymbol)
+                : new FunctionBinder(_sharedBinderState, this, functionSymbol);
 
             if (isQualifiedName)
-                functionBinder = new ContainedFunctionBinder(_sharedBinderState, functionBinder, containerSymbol.Binder);
+                functionBinder = new ContainedFunctionBinder(_sharedBinderState, functionBinder, containerSymbol.Binder, functionSymbol);
 
             var boundParameters = BindParameters(declaration.ParameterList, functionBinder, functionSymbol);
             var boundBody = functionBinder.Bind(declaration.Body, x => functionBinder.BindBlock(x, functionSymbol));
 
+            if (boundReturnType.Type != IntrinsicTypes.Void && !ReturnStatementWalker.ContainsReturnStatement(boundBody))
+                Diagnostics.Report(declaration.Name.SourceRange, DiagnosticId.ReturnExpected, functionSymbol.Name);
+
             return new BoundFunctionDefinition(functionSymbol, boundReturnType, boundParameters.ToImmutableArray(), boundBody);
+        }
+
+        private sealed class ReturnStatementWalker : BoundTreeWalker
+        {
+            private bool _containsReturnStatement;
+
+            /// <summary>
+            /// TODO: This is just a hack. We need to proper flow analysis
+            /// to detect whether all code paths return a value.
+            /// </summary>
+            public static bool ContainsReturnStatement(BoundBlock boundBlock)
+            {
+                var walker = new ReturnStatementWalker();
+                walker.VisitBlock(boundBlock);
+                return walker._containsReturnStatement;
+            }
+
+            protected override void VisitReturnStatement(BoundReturnStatement node)
+            {
+                base.VisitReturnStatement(node);
+
+                _containsReturnStatement = true;
+            }
         }
 
         private ImmutableArray<BoundVariableDeclaration> BindParameters(ParameterListSyntax parameterList, Binder invocableBinder, InvocableSymbol invocableSymbol)
