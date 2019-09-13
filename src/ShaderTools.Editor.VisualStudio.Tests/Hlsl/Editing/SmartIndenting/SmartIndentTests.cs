@@ -9,6 +9,7 @@ namespace ShaderTools.Editor.VisualStudio.Tests.Hlsl.Editing.SmartIndenting
 {
     public class SmartIndentTests : VisualStudioTestsBase
     {
+    	/*
         [Fact]
         public void TestIndent()
         {
@@ -68,5 +69,6 @@ namespace ShaderTools.Editor.VisualStudio.Tests.Hlsl.Editing.SmartIndenting
             var actualIndent = SmartIndent.FindTotalParentChainIndent((SyntaxNode) syntaxTree.Root, caret, 0, indentationService, syntaxFactsService);
             Assert.Equal(expectedIndent, actualIndent);
         }
+        */
     }
 }
